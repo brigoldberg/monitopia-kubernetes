@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+
+      - name: prometheus
+        image: prometheus:2.20.0
+        ports:
+        - containerPort: 9090
+        command:
+          - "/usr/sbin/prometheus"
+        args:
+          - "--config.file=/etc/prometheus/prometheus.yml"
+          - "--storage.tsdb.path=/var/lib/prometheus/data"
+          - "--web.listen-address=0.0.0.0:9090"
+          - "--web.enable-admin-api"
+        volumeMounts:
+          - name: prometheus-pv-etc
+            mountPath: /etc/prometheus
+          - name: prometheus-pv-data
+            mountPath: /var/lib/prometheus/data
+
+      volumes:
+        - name: prometheus-pv-etc
+          hostPath:
+            path: /storage/prometheus/etc
+            type: Directory
+        - name: prometheus-pv-data
+          hostPath:
+            path: /storage/prometheus/data
+            type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: prometheus
+  ports:
+    - nodePort: 30090
+      name: prometheus
+      port: 9090
+      targetPort: 9090

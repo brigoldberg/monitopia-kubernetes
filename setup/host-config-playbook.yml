@@ -1,0 +1,70 @@
+---
+- name: NGNIX
+  hosts: localhost
+  connection: local
+  become: true
+
+  tasks:
+
+  - name: NGINX | install NGINX
+    yum:
+      name: nginx
+      state: present
+    tags:
+      - nginx
+
+  - name: NGINX | main configuration file
+    template:
+      src: nginx.conf
+      dest: /etc/nginx/nginx.conf
+    tags:
+      - nginx
+
+  - name: NGINX | Reload NGINX
+    service:
+      name: nginx
+      state: reloaded
+    tags:
+      - nginx
+      - alerta
+      - prometheus
+
+  - name: ALERTA | nginx config file
+    template:
+      src: templates/alerta-proxy.conf
+      dest: /etc/nginx/conf.d/alerta-proxy.conf 
+    tags:
+      - alerta
+
+  - name: ALERTA | mongodb local dir
+    file:
+      path: /storage/mongodb
+      state: directory
+      mode: '1777'
+    tags:
+      - alerta
+
+  - name: PROMETHEUS | prometheus local dir
+    file:
+      path: "{{ item }}"
+      state: directory
+      mode: '1777'
+    with_items:
+      - /storage/prometheus/etc
+      - /storage/prometheus/data
+    tags:
+      - prometheus
+
+  - name: PROMETHEUS | nginx config file
+    template:
+      src: templates/prometheus-proxy.conf
+      dest: /etc/nginx/conf.d/prometheus-proxy.conf
+    tags:
+      - prometheus
+
+  - name: PROMETHEUS | prometheus config file
+    template:
+      src: templates/prometheus.yml
+      dest: /storage/prometheus/etc/
+    tags:
+      - prometheus
