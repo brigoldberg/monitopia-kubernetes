@@ -27,6 +27,7 @@
     tags:
       - nginx
       - alerta
+      - nagios
       - prometheus
 
   - name: ALERTA | nginx config file
@@ -43,6 +44,21 @@
       mode: '1777'
     tags:
       - alerta
+
+  - name: NAGIOS | nginx config file
+    template:
+      src: templates/nagios-proxy.conf
+      dest: /etc/nginx/conf.d/nagios-proxy.conf
+    tags:
+      - nagios
+
+  - name: NAGIOS | nagios local dir
+    file:
+      path: /storage/nagios
+      state: directory
+      mode: '1777'
+    tags:
+      - nagios
 
   - name: PROMETHEUS | prometheus local dir
     file:

@@ -1,0 +1,13 @@
+# Create Nagios Docker image with Alerta module.
+
+FROM davralin/nagios:4.4.6
+
+RUN apt-get update
+RUN apt-get -y install libglib2.0-dev libcurl4-gnutls-dev libjansson-dev vim-nox tree
+RUN cd /tmp                                                     && \
+    git clone https://github.com/alerta/nagios-alerta.git       && \
+    cd nagios-alerta                                            && \
+    make nagios4                                                && \
+    make install                                                && \
+    make clean                                                  && \
+    cd /tmp && rm -Rf nagios-alerta

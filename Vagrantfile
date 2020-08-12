@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
     node.vm.provision :shell, :path => "bootstrap.sh"
     node.vm.provider "virtualbox" do |vb|
       vb.customize ["modifyvm", :id, "--audio", "none"]
-      vb.memory = 4096
+      vb.memory = 6144
       vb.cpus = 2
     end
   end

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nagios
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nagios
+  template:
+    metadata:
+      labels:
+        app: nagios
+    spec:
+      containers:
+      - name: nagios
+        image: nagios:4.4.6-alerta
+        ports:
+        - containerPort: 80
+        #volumeMounts:
+        #  - name: nagios-cfg-pv-storage
+        #    mountPath: /opt/nagios/etc
+        #  - name: nagios-var-pv-storage
+        #    mountPath: /opt/nagios/var
+        env:
+          - name: NAGIOS_TIMEZONE
+            value: 'America/New_York'
+          - name: NAGIOS_FQDN
+            value: "nagios.test.maystreet.com"
+      #volumes:
+      #  - name: nagios-cfg-pv-storage
+      #    hostPath:
+      #      path: /storage/nagios/etc
+      #      type: Directory
+      #  - name: nagios-var-pv-storage
+      #    hostPath:
+      #      path: /storage/nagios/var
+      #      type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nagios-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: nagios
+  ports:
+    - nodePort: 30081
+      port: 80
+      targetPort: 80

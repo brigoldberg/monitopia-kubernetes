@@ -69,3 +69,13 @@ systemctl enable kubelet; systemctl start kubelet
 kubeadm config images pull
 kubeadm init --pod-network-cidr=10.244.0.0/16 
 
+
+########################################################
+# Run these commands for 'vagrant' user
+########################################################
+sudo -i -u vagrant mkdir -p \$HOME/.kube
+cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+chown $(sudo -i -u vagrant id -u):$(sudo -i -u vagrant id -g) /home/vagrant/.kube/config
+
+sudo -i -u vagrant kubectl taint nodes --all node-role.kubernetes.io/master-
+sudo -i -u vagrant kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
